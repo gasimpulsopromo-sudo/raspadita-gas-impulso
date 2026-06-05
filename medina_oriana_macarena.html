@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Raspadita YPF Infinia — Gas Impulso</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f4fa;display:flex;justify-content:center;min-height:100vh;padding:12px 8px;}
+#app{max-width:390px;width:100%;background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 4px 24px rgba(0,61,165,0.13);}
+:root{--ypf:#003DA5;--ypf-dark:#002875;--ypf-light:#E8EFFD;--inf:#C8973A;--inf-light:#FBF4E8;}
+.header{background:var(--ypf);padding:18px 16px 14px;text-align:center;}
+.header-logos{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:6px;}
+.badge-ypf{background:#fff;color:var(--ypf);font-weight:700;font-size:20px;padding:4px 12px;border-radius:4px;letter-spacing:2px;}
+.badge-inf{border:2px solid var(--inf);color:var(--inf);font-weight:600;font-size:13px;padding:4px 10px;border-radius:4px;letter-spacing:1px;}
+.header-title{color:#fff;font-size:16px;font-weight:600;margin-bottom:3px;}
+.header-dates{color:rgba(255,255,255,0.65);font-size:11px;}
+.body{padding:16px;}
+.notice{background:var(--inf-light);border:1px solid var(--inf);border-radius:10px;padding:10px 14px;text-align:center;font-size:13px;color:#7A5A10;margin-bottom:14px;display:none;}
+.hint{text-align:center;font-size:12px;color:#666;margin-bottom:6px;}
+.progress-bar{height:4px;background:#e0e0e0;border-radius:2px;margin-bottom:14px;overflow:hidden;}
+.progress-fill{height:100%;background:var(--ypf);border-radius:2px;transition:width 0.15s;width:0%;}
+.scratch-container{position:relative;width:100%;height:190px;border-radius:14px;overflow:hidden;margin-bottom:16px;cursor:crosshair;border:2px solid var(--ypf);}
+#prize-display{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;background:var(--ypf-light);}
+.prize-name{font-size:14px;font-weight:600;color:var(--ypf);text-align:center;padding:0 14px;}
+.prize-detail{font-size:11px;color:#4A6DAA;text-align:center;padding:0 14px;}
+#scratch-canvas{position:absolute;inset:0;}
+.form-card{background:#fff;border:2px solid var(--ypf);border-radius:14px;padding:16px;display:none;margin-bottom:16px;}
+.form-header{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.form-title{font-size:13px;font-weight:600;color:var(--ypf);}
+.form-sub{font-size:11px;color:#666;margin-top:2px;line-height:1.4;}
+.form-group{margin-bottom:10px;}
+.form-label{font-size:11px;color:#555;margin-bottom:4px;display:block;font-weight:600;}
+.form-group input{width:100%;padding:9px 12px;border:1.5px solid #ccc;border-radius:8px;font-size:14px;color:#222;background:#fff;outline:none;transition:border-color 0.2s;}
+.form-group input:focus{border-color:var(--ypf);}
+.btn-primary{display:block;width:100%;padding:12px;background:var(--ypf);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;}
+.btn-primary:disabled{opacity:0.55;cursor:not-allowed;}
+.err{font-size:11px;color:#C0392B;margin-top:3px;display:none;}
+.saving-msg{font-size:12px;color:var(--ypf);text-align:center;padding:6px 0;display:none;}
+.result-card{background:#fff;border-radius:14px;padding:16px;text-align:center;display:none;margin-bottom:16px;}
+.result-card.winner{border:2px solid var(--inf);}
+.result-card.no-prize{border:1.5px solid #ddd;}
+.winner-badge{display:inline-block;background:var(--inf);color:#fff;font-size:12px;font-weight:600;padding:4px 16px;border-radius:20px;margin-bottom:8px;}
+.result-title{font-size:15px;font-weight:600;color:var(--ypf);margin-bottom:4px;}
+.result-sub{font-size:12px;color:#666;margin-bottom:12px;line-height:1.4;}
+.coupon-wrap{background:var(--ypf-light);border:1.5px dashed var(--ypf);border-radius:10px;padding:10px 18px;display:inline-block;margin-bottom:12px;}
+.coupon-lbl{font-size:10px;color:#4A6DAA;margin-bottom:3px;}
+.coupon-val{font-size:18px;font-weight:700;font-family:'Courier New',monospace;color:var(--ypf);letter-spacing:3px;}
+.btn-new{display:block;width:100%;padding:10px;background:transparent;color:var(--ypf);border:2px solid var(--ypf);border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;margin-top:4px;}
+.prizes-title{font-size:12px;font-weight:600;color:#888;text-align:center;margin-bottom:8px;letter-spacing:0.5px;text-transform:uppercase;}
+.prizes-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px;}
+.prize-item{background:#f5f8ff;border-radius:10px;padding:10px 6px;display:flex;flex-direction:column;align-items:center;gap:6px;border:1px solid #dde8ff;}
+.pi-label{font-size:11px;color:#444;line-height:1.3;text-align:center;}
+.footer{background:var(--ypf);padding:10px 16px;text-align:center;}
+.footer-text{font-size:10px;color:rgba(255,255,255,0.6);line-height:1.5;}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="header">
+    <div class="header-logos">
+      <div class="badge-ypf">YPF</div>
+      <div class="badge-inf">INFINIA</div>
+    </div>
+    <div class="header-title">¡Raspá y ganá!</div>
+    <div class="header-dates">5 de junio al 30 de junio de 2026</div>
+  </div>
+  <div class="body">
+    <div class="notice" id="notice"></div>
+    <div class="hint" id="hint-text">Deslizá el dedo para revelar tu premio</div>
+    <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+    <div class="scratch-container" id="scratch-area">
+      <div id="prize-display">
+        <div id="prize-svg-slot"></div>
+        <div class="prize-name" id="prize-name">Tu premio te espera</div>
+        <div class="prize-detail" id="prize-detail"></div>
+      </div>
+      <canvas id="scratch-canvas"></canvas>
+    </div>
+    <div class="form-card" id="form-card">
+      <div class="form-header">
+        <div id="form-icon-slot" style="flex-shrink:0;"></div>
+        <div>
+          <div class="form-title" id="form-title">Registrá tus datos para reclamar</div>
+          <div class="form-sub">Completar el formulario es obligatorio para entregar el premio.</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nombre y apellido</label>
+        <input type="text" id="f-nombre" placeholder="Ej: Juan García" maxlength="60">
+        <div class="err" id="err-nombre">Ingresá tu nombre completo</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">DNI</label>
+        <input type="number" id="f-dni" placeholder="Ej: 35812345">
+        <div class="err" id="err-dni">Ingresá un DNI válido (7-8 dígitos)</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Teléfono celular</label>
+        <input type="tel" id="f-tel" placeholder="Ej: 1134567890">
+        <div class="err" id="err-tel">Ingresá un teléfono válido</div>
+      </div>
+      <div class="saving-msg" id="saving-msg">⏳ Registrando datos...</div>
+      <button class="btn-primary" id="btn-reg" onclick="registrar()">Confirmar y obtener código</button>
+    </div>
+    <div class="result-card" id="result-card">
+      <div id="result-badge-wrap"></div>
+      <div id="result-svg-slot" style="display:flex;justify-content:center;margin-bottom:8px;"></div>
+      <div class="result-title" id="result-title"></div>
+      <div class="result-sub" id="result-sub"></div>
+      <div class="coupon-wrap" id="coupon-wrap" style="display:none;">
+        <div class="coupon-lbl">Tu código de canje</div>
+        <div class="coupon-val" id="coupon-val"></div>
+      </div>
+      <button class="btn-new" onclick="resetGame()">Nueva raspadita</button>
+    </div>
+    <div class="prizes-title">Premios disponibles</div>
+    <div class="prizes-grid">
+      <div class="prize-item"><div id="grid-camisa"></div><div class="pi-label">Camiseta Adidas Messi</div></div>
+      <div class="prize-item"><div style="font-size:26px;">☕</div><div class="pi-label">Café gratis en tienda</div></div>
+      <div class="prize-item"><div id="grid-elaion"></div><div class="pi-label">20% dto. Elaion Auro</div></div>
+    </div>
+  </div>
+  <div class="footer">
+    <div class="footer-text">Válido únicamente con carga de Infinia · Sujeto a stock disponible<br>Promoción vigente del 5 al 30 de junio de 2026</div>
+  </div>
+</div>
+<script>
+const SHEETS_URL  = 'https://script.google.com/macros/s/AKfycbxF6YMTOQQhBKnvTX7I4CN5IKess-Luimui1xxtrQafgmHzjzG7PageiRWr5ZaOKX4t/exec';
+const VENDEDOR    = 'MEDINA ORIANA MACARENA';
+const ESTACION    = 'Gas Impulso';
+
+function svgCamiseta(w,h){
+  const sw=w/7; let f='';
+  for(let i=0;i<7;i++) f+=`<rect x="${i*sw}" y="0" width="${sw}" height="${h}" fill="${i%2===0?'#75AADB':'#ffffff'}"/>`;
+  return `<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">
+    <defs><clipPath id="sc${w}"><path d="M${w*.22},0 L${w*.08},${h*.08} L0,${h*.06} L0,${h*.30} L${w*.18},${h*.28} L${w*.18},${h} L${w*.82},${h} L${w*.82},${h*.28} L${w},${h*.30} L${w},${h*.06} L${w*.92},${h*.08} L${w*.78},0 L${w*.63},${h*.10} L${w*.63},${h*.14} L${w*.37},${h*.14} L${w*.37},${h*.10} Z"/></clipPath></defs>
+    <g clip-path="url(#sc${w})">${f}</g>
+    <path d="M${w*.22},0 L${w*.08},${h*.08} L0,${h*.06} L0,${h*.30} L${w*.18},${h*.28} L${w*.18},${h} L${w*.82},${h} L${w*.82},${h*.28} L${w},${h*.30} L${w},${h*.06} L${w*.92},${h*.08} L${w*.78},0 L${w*.63},${h*.10} L${w*.63},${h*.14} L${w*.37},${h*.14} L${w*.37},${h*.10} Z" fill="none" stroke="#4A90C4" stroke-width="1"/>
+    <ellipse cx="${w*.5}" cy="${h*.11}" rx="${w*.13}" ry="${h*.055}" fill="none" stroke="#4A90C4" stroke-width="1.2"/>
+    <text x="${w*.5}" y="${h*.42}" text-anchor="middle" font-size="${w*.13}" fill="#003DA5">★</text>
+    <text x="${w*.5}" y="${h*.58}" text-anchor="middle" font-size="${w*.09}" fill="#003DA5" font-weight="bold" font-family="Arial">AFA</text>
+    <text x="${w*.5}" y="${h*.82}" text-anchor="middle" font-size="${w*.18}" fill="#003DA5" font-weight="bold" font-family="Arial">10</text>
+  </svg>`;
+}
+
+function svgElaion(w,h){
+  const bx=w*.18,bw=w*.64,by=h*.12,bh=h*.80;
+  const tw=bw*.45,tx=bx+(bw-bw*.45)/2,ty=by-h*.10,th=h*.11;
+  const mx=bx+bw,my=by+h*.05;
+  return `<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="${w*.5}" cy="${by+bh+4}" rx="${bw*.45}" ry="4" fill="rgba(0,0,0,0.10)"/>
+    <rect x="${bx}" y="${by}" width="${bw}" height="${bh}" rx="6" fill="#003DA5"/>
+    <polygon points="${bx},${by+bh*.38} ${bx+bw},${by+bh*.28} ${bx+bw},${by+bh*.52} ${bx},${by+bh*.62}" fill="#C8973A"/>
+    <rect x="${bx}" y="${by}" width="${bw*.10}" height="${bh}" rx="6" fill="rgba(255,255,255,0.08)"/>
+    <rect x="${tx}" y="${ty}" width="${tw}" height="${th}" rx="3" fill="#1a1a1a"/>
+    <path d="M${mx},${my} Q${mx+w*.12},${my} ${mx+w*.12},${my+h*.12} Q${mx+w*.12},${my+h*.22} ${mx},${my+h*.22}" fill="none" stroke="#1a1a1a" stroke-width="${w*.06}" stroke-linecap="round"/>
+    <text x="${bx+bw*.5}" y="${by+bh*.24}" text-anchor="middle" font-size="${w*.11}" fill="#fff" font-weight="bold" font-family="Arial">ELAION</text>
+    <text x="${bx+bw*.5}" y="${by+bh*.46}" text-anchor="middle" font-size="${w*.13}" fill="#003DA5" font-weight="bold" font-family="Arial">AURO</text>
+    <text x="${bx+bw*.5}" y="${by+bh*.68}" text-anchor="middle" font-size="${w*.08}" fill="#C8973A" font-family="Arial">15W-40</text>
+    <text x="${bx+bw*.5}" y="${by+bh*.88}" text-anchor="middle" font-size="${w*.075}" fill="rgba(255,255,255,0.7)" font-family="Arial">YPF Lubricantes</text>
+  </svg>`;
+}
+
+const prizes=[
+  {id:'camisa',bigSvg:()=>svgCamiseta(72,80),name:'¡Camiseta Adidas Messi!',detail:'Retirá en la estación con tu código y DNI',winner:true,prob:0.04},
+  {id:'cafe',bigSvg:()=>'<div style="font-size:52px;text-align:center;">☕</div>',name:'¡Café gratis en tienda!',detail:'Canjealo hoy en la tienda con tu código',winner:true,prob:0.20},
+  {id:'lub20',bigSvg:()=>svgElaion(68,80),name:'¡20% dto. en Elaion Auro 15W-40!',detail:'Válido en compra de lubricantes Elaion Auro · Junio 2026',winner:true,prob:0.46},
+  {id:'nada',bigSvg:()=>'<div style="font-size:44px;text-align:center;">⛽</div>',name:'¡Gracias por cargar Infinia!',detail:'Seguí participando en tu próxima carga',winner:false,prob:0.30}
+];
+
+let stock={camisa:15,cafe:100};
+let premioActual=null,drawing=false,revealed=false;
+const START=new Date('2026-06-05T00:00:00');
+const END=new Date('2026-06-30T23:59:59');
+
+function checkDate(){
+  const now=new Date(),notice=document.getElementById('notice'),area=document.getElementById('scratch-area');
+  if(now<START){notice.style.display='block';notice.textContent='⏳ La promoción comienza el 5 de junio de 2026.';area.style.pointerEvents='none';area.style.opacity='0.5';return false;}
+  if(now>END){notice.style.display='block';notice.textContent='La promoción finalizó el 30 de junio de 2026.';area.style.pointerEvents='none';area.style.opacity='0.5';return false;}
+  return true;
+}
+
+function sortear(){
+  const r=Math.random();let acc=0;
+  for(const p of prizes){
+    if(p.id==='camisa'&&stock.camisa<=0)continue;
+    if(p.id==='cafe'&&stock.cafe<=0)continue;
+    acc+=p.prob;if(r<acc)return p;
+  }
+  return prizes[prizes.length-1];
+}
+
+function genCodigo(id){
+  const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';let s=id.toUpperCase().slice(0,3);
+  for(let i=0;i<6;i++)s+=c[Math.floor(Math.random()*c.length)];return s;
+}
+
+const canvas=document.getElementById('scratch-canvas');
+const ctx=canvas.getContext('2d');
+const area=document.getElementById('scratch-area');
+
+function initCanvas(){
+  const r=area.getBoundingClientRect();
+  canvas.width=r.width||358;canvas.height=r.height||190;
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.globalCompositeOperation='source-over';
+  ctx.fillStyle='#003DA5';ctx.fillRect(0,0,canvas.width,canvas.height);
+  for(let i=0;i<canvas.width;i+=22){ctx.strokeStyle='rgba(200,151,58,0.22)';ctx.lineWidth=0.8;ctx.beginPath();ctx.moveTo(i,0);ctx.lineTo(i,canvas.height);ctx.stroke();}
+  for(let j=0;j<canvas.height;j+=22){ctx.beginPath();ctx.moveTo(0,j);ctx.lineTo(canvas.width,j);ctx.stroke();}
+  ctx.fillStyle='#fff';ctx.font='700 22px Arial';ctx.textAlign='center';ctx.fillText('YPF',canvas.width/2,canvas.height/2-14);
+  ctx.fillStyle='rgba(200,151,58,0.95)';ctx.font='600 13px Arial';ctx.fillText('RASPÁ AQUÍ',canvas.width/2,canvas.height/2+8);
+  ctx.fillStyle='rgba(255,255,255,0.5)';ctx.font='11px Arial';ctx.fillText('Deslizá el dedo para revelar tu premio',canvas.width/2,canvas.height/2+26);
+  premioActual=sortear();
+  document.getElementById('prize-svg-slot').innerHTML=premioActual.bigSvg();
+  document.getElementById('prize-name').textContent=premioActual.name;
+  document.getElementById('prize-detail').textContent=premioActual.detail;
+  revealed=false;
+  document.getElementById('progress').style.width='0%';
+  document.getElementById('hint-text').textContent='Deslizá el dedo para revelar tu premio';
+  document.getElementById('form-card').style.display='none';
+  document.getElementById('result-card').style.display='none';
+}
+
+function scratch(x,y){ctx.globalCompositeOperation='destination-out';ctx.beginPath();ctx.arc(x,y,32,0,Math.PI*2);ctx.fill();updatePct();}
+
+function updatePct(){
+  const d=ctx.getImageData(0,0,canvas.width,canvas.height).data;let t=0;
+  for(let i=3;i<d.length;i+=4)if(d[i]<128)t++;
+  const pct=Math.round((t/(canvas.width*canvas.height))*100);
+  document.getElementById('progress').style.width=Math.min(pct,100)+'%';
+  if(pct>45&&!revealed)reveal();
+}
+
+function reveal(){
+  revealed=true;
+  ctx.globalCompositeOperation='destination-out';ctx.fillRect(0,0,canvas.width,canvas.height);
+  document.getElementById('progress').style.width='100%';
+  document.getElementById('hint-text').textContent='¡Tu resultado está listo!';
+  if(premioActual.winner){
+    document.getElementById('form-icon-slot').innerHTML=premioActual.bigSvg();
+    document.getElementById('form-title').textContent=premioActual.name.replace(/[¡!]/g,'')+' — Registrá tus datos';
+    document.getElementById('form-card').style.display='block';
+  }else{mostrarResultado(null);}
+}
+
+function validar(){
+  let ok=true;
+  const n=document.getElementById('f-nombre').value.trim();
+  const d=document.getElementById('f-dni').value.trim();
+  const t=document.getElementById('f-tel').value.trim();
+  ['err-nombre','err-dni','err-tel'].forEach(id=>document.getElementById(id).style.display='none');
+  if(n.length<4){document.getElementById('err-nombre').style.display='block';ok=false;}
+  if(!/^\d{7,8}$/.test(d)){document.getElementById('err-dni').style.display='block';ok=false;}
+  if(!/^\d{8,15}$/.test(t)){document.getElementById('err-tel').style.display='block';ok=false;}
+  return ok;
+}
+
+async function registrar(){
+  if(!validar())return;
+  const btn=document.getElementById('btn-reg'),msg=document.getElementById('saving-msg');
+  btn.disabled=true;btn.textContent='Registrando...';msg.style.display='block';
+  const codigo=genCodigo(premioActual.id);
+  const nombre=document.getElementById('f-nombre').value.trim();
+  const dni=document.getElementById('f-dni').value.trim();
+  const tel=document.getElementById('f-tel').value.trim();
+  const fecha=new Date().toLocaleString('es-AR',{timeZone:'America/Argentina/Buenos_Aires'});
+  if(premioActual.id==='camisa')stock.camisa=Math.max(0,stock.camisa-1);
+  if(premioActual.id==='cafe')stock.cafe=Math.max(0,stock.cafe-1);
+  try{
+    await fetch(SHEETS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({nombre,dni,tel,premio:premioActual.name,codigo,fecha,vendedor:VENDEDOR,estacion:ESTACION})});
+  }catch(e){}
+  msg.style.display='none';
+  document.getElementById('form-card').style.display='none';
+  mostrarResultado(codigo);
+}
+
+function mostrarResultado(cod){
+  const rc=document.getElementById('result-card');
+  rc.style.display='block';rc.className='result-card '+(premioActual.winner?'winner':'no-prize');
+  document.getElementById('result-badge-wrap').innerHTML=premioActual.winner?'<div class="winner-badge">¡GANASTE!</div>':'';
+  document.getElementById('result-svg-slot').innerHTML=premioActual.bigSvg();
+  document.getElementById('result-title').textContent=premioActual.name;
+  document.getElementById('result-sub').textContent=premioActual.detail;
+  const cw=document.getElementById('coupon-wrap');
+  if(cod&&premioActual.winner){cw.style.display='inline-block';document.getElementById('coupon-val').textContent=cod;}
+  else cw.style.display='none';
+}
+
+function getPos(e){const r=canvas.getBoundingClientRect();if(e.touches)return{x:e.touches[0].clientX-r.left,y:e.touches[0].clientY-r.top};return{x:e.clientX-r.left,y:e.clientY-r.top};}
+canvas.addEventListener('mousedown',e=>{if(revealed)return;drawing=true;const p=getPos(e);scratch(p.x,p.y);});
+canvas.addEventListener('mousemove',e=>{if(!drawing||revealed)return;const p=getPos(e);scratch(p.x,p.y);});
+canvas.addEventListener('mouseup',()=>drawing=false);
+canvas.addEventListener('touchstart',e=>{e.preventDefault();if(revealed)return;drawing=true;const p=getPos(e);scratch(p.x,p.y);},{passive:false});
+canvas.addEventListener('touchmove',e=>{e.preventDefault();if(!drawing||revealed)return;const p=getPos(e);scratch(p.x,p.y);},{passive:false});
+canvas.addEventListener('touchend',()=>drawing=false);
+function resetGame(){initCanvas();}
+window.addEventListener('load',()=>{
+  checkDate();initCanvas();
+  document.getElementById('grid-camisa').innerHTML=svgCamiseta(32,36);
+  document.getElementById('grid-elaion').innerHTML=svgElaion(32,40);
+});
+window.addEventListener('resize',initCanvas);
+</script>
+</body>
+</html>
