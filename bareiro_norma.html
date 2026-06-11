@@ -51,7 +51,7 @@
 <script>
 var VENDEDOR = "BAREIRO NORMA";
 var ESTACION = "Gas Impulso";
-var WEBHOOK = "https://script.google.com/macros/s/AKfycbwlJEEG4B7FsBaE3ODlOmaaO8hFc4ZpXslN4vJhAALEjwRhhu1JzrvvZAsPzysFYc-cEw/exec";
+var WEBHOOK = "https://script.google.com/macros/s/AKfycbyWmRBegKWfGmLtbIERHrxE9wVGyMtf00oKr6r0_-q1_neWBL_v6Ji-4rKAwlIC01r1dA/exec";
 var PREMIOS = [
   {id:"camiseta", nombre:"CAMISETA MESSI", prob:0.05, desc:"Camiseta Adidas Messi Argentina 2022. Retira en la estacion con este codigo."},
   {id:"cafe", nombre:"CAFE GRATIS", prob:0.30, desc:"Cafe gratis en nuestra tienda. Mostra este codigo al cajero."},
@@ -149,13 +149,28 @@ function registrar() {
     vendedor: VENDEDOR,
     estacion: ESTACION
   };
-  fetch(WEBHOOK, {method: 'POST', body: JSON.stringify(payload)}).catch(function() {});
-  document.getElementById('scratch-section').style.display = 'none';
-  var rs = document.getElementById('result-section');
-  rs.style.display = 'block';
-  document.getElementById('res-title').textContent = 'GANASTE ' + premioSeleccionado.nombre + '!';
-  document.getElementById('res-code').textContent = premioSeleccionado.codigo;
-  document.getElementById('res-desc').textContent = premioSeleccionado.desc;
+  fetch(WEBHOOK, {method: 'POST', body: JSON.stringify(payload)})
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      var premiofinal = data.premio || premioSeleccionado.nombre;
+      var desc = premiofinal === 'CAMISETA MESSI' ? 'Camiseta Adidas Messi Argentina 2022. Retira en la estacion con este codigo.' :
+                 premiofinal === 'CAFE GRATIS' ? 'Cafe gratis en nuestra tienda. Mostra este codigo al cajero.' :
+                 '20% de descuento en Elaion Auro 15W-40. Valido en esta visita.';
+      document.getElementById('scratch-section').style.display = 'none';
+      var rs = document.getElementById('result-section');
+      rs.style.display = 'block';
+      document.getElementById('res-title').textContent = 'GANASTE ' + premiofinal + '!';
+      document.getElementById('res-code').textContent = premioSeleccionado.codigo;
+      document.getElementById('res-desc').textContent = desc;
+    })
+    .catch(function() {
+      document.getElementById('scratch-section').style.display = 'none';
+      var rs = document.getElementById('result-section');
+      rs.style.display = 'block';
+      document.getElementById('res-title').textContent = 'GANASTE ' + premioSeleccionado.nombre + '!';
+      document.getElementById('res-code').textContent = premioSeleccionado.codigo;
+      document.getElementById('res-desc').textContent = premioSeleccionado.desc;
+    });
 }
 </script>
 </body>
