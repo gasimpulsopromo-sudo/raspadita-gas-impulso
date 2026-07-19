@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ranking Vendedores - GNC Escobar</title>
+<title>Ranking Vendedores - Gas Impulso</title>
 <style>
   :root { --ypf-blue: #003DA5; --ypf-gold: #C8973A; --light-bg: #f0f4ff; }
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -27,7 +27,7 @@
   .rango-picker .campo { flex: 1; }
   .rango-picker label { display: block; font-size: 0.75rem; color: #444; font-weight: bold; margin-bottom: 4px; }
   .rango-picker input[type=date] { width: 100%; padding: 8px 10px; border: 2px solid #dde3f5; border-radius: 8px; font-size: 0.85rem; outline: none; }
-  .ranking-title{ font-size: 1rem; color: var(--ypf-blue); font-weight: bold; margin-bottom: 12px; border-bottom: 2px solid var(--ypf-gold); padding-bottom: 6px; }
+  .ranking-title { font-size: 1rem; color: var(--ypf-blue); font-weight: bold; margin-bottom: 12px; border-bottom: 2px solid var(--ypf-gold); padding-bottom: 6px; }
   .ranking-item { display: flex; align-items: center; padding: 10px 12px; border-radius: 10px; margin-bottom: 8px; background: #f8f9ff; }
   .ranking-item.top1 { background: #fff8e6; border-left: 4px solid gold; }
   .ranking-item.top2 { background: #f5f5f5; border-left: 4px solid silver; }
@@ -52,7 +52,7 @@
 <body>
 <div class="header">
   <h1>RANKING VENDEDORES</h1>
-  <p>GNC Escobar - Raspadita Infinia 2026</p>
+  <p>Gas Impulso - Raspadita Infinia 2026</p>
 </div>
 <div class="card">
   <div id="login-section">
@@ -87,7 +87,7 @@
     </div>
     <div id="ranking-exportable">
       <div class="export-header" id="export-header">
-        <h2>Ranking GNC Escobar</h2>
+        <h2>Ranking Gas Impulso</h2>
         <p id="export-subtitulo"></p>
       </div>
       <div class="ranking-title" id="ranking-titulo">Ranking de hoy</div>
@@ -101,8 +101,8 @@
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
-var WEBHOOK = "https://script.google.com/macros/s/AKfycbzNO9eDuGxFZn-DX6ivFNpg4_g2JaIvWb6PhePSqm9G4ZmGNit72rwQCuh9mDVA6VCQ/exec";
-var PASSWORD = '282';
+var WEBHOOK = "https://script.google.com/macros/s/AKfycbyWmRBegKWfGmLtbIERHrxE9wVGyMtf00oKr6r0_-q1_neWBL_v6Ji-4rKAwlIC01r1dA/exec";
+var PASSWORD = '322';
 var filtroActual = 'hoy';
 var todosLosDatos = [];
 var UMBRAL_DIA_VALIDO = 3; // 3 o mas raspaditas en un dia cuenta como 1 dia valido
@@ -221,7 +221,7 @@ function descargarImagen() {
   html2canvas(el, {backgroundColor:'#ffffff', scale:2}).then(function(canvas) {
     document.getElementById('export-header').style.display = 'none';
     var link = document.createElement('a');
-    link.download = 'ranking_gnc_escobar_' + new Date().toLocaleDateString('es-AR').replace(/\//g,'-') + '.png';
+    link.download = 'ranking_gas_impulso_' + new Date().toLocaleDateString('es-AR').replace(/\//g,'-') + '.png';
     link.href = canvas.toDataURL('image/png');
     link.click();
   });
