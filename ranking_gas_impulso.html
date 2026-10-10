@@ -27,7 +27,7 @@
   .rango-picker .campo { flex: 1; }
   .rango-picker label { display: block; font-size: 0.75rem; color: #444; font-weight: bold; margin-bottom: 4px; }
   .rango-picker input[type=date] { width: 100%; padding: 8px 10px; border: 2px solid #dde3f5; border-radius: 8px; font-size: 0.85rem; outline: none; }
-  .ranking-title { font-size: 1rem; color: var(--ypf-blue); font-weight: bold; margin-bottom: 12px; border-bottom: 2px solid var(--ypf-gold); padding-bottom: 6px; }
+  .ranking-title{ font-size: 1rem; color: var(--ypf-blue); font-weight: bold; margin-bottom: 12px; border-bottom: 2px solid var(--ypf-gold); padding-bottom: 6px; }
   .ranking-item { display: flex; align-items: center; padding: 10px 12px; border-radius: 10px; margin-bottom: 8px; background: #f8f9ff; }
   .ranking-item.top1 { background: #fff8e6; border-left: 4px solid gold; }
   .ranking-item.top2 { background: #f5f5f5; border-left: 4px solid silver; }
@@ -52,7 +52,7 @@
 <body>
 <div class="header">
   <h1>RANKING VENDEDORES</h1>
-  <p>Gas Impulso - Raspadita Infinia 2026</p>
+  <p>Gas Impulso - Sorteo de la Moto</p>
 </div>
 <div class="card">
   <div id="login-section">
@@ -65,6 +65,7 @@
     <div id="login-msg" style="color:#c0392b;text-align:center;margin-top:8px;font-size:0.85rem;"></div>
   </div>
   <div id="main-section">
+    <div class="filtros" id="sectores"></div>
     <div class="filtros">
       <button class="filtro-btn activo" id="btn-hoy" onclick="setFiltro('hoy')">HOY</button>
       <button class="filtro-btn" id="btn-semana" onclick="setFiltro('semana')">SEMANA</button>
@@ -91,7 +92,7 @@
         <p id="export-subtitulo"></p>
       </div>
       <div class="ranking-title" id="ranking-titulo">Ranking de hoy</div>
-      <div class="leyenda-dias">El numero azul = dias con 3 o mas raspaditas</div>
+      <div class="leyenda-dias" id="leyenda"></div>
       <div id="ranking-lista"><div class="loading">Cargando datos...</div></div>
     </div>
     <div class="ultima-act" id="ultima-act"></div>
@@ -104,8 +105,9 @@
 var WEBHOOK = "https://script.google.com/macros/s/AKfycbza8-gP9EUiw4mX686HbHlJ6oY7AE9e0w5Plknxnqdxik-WSRif9U7k0VuSgxbiKPFDJQ/exec";
 var PASSWORD = '322';
 var filtroActual = 'hoy';
+var TABS = [{label:'GENERAL',cat:'',dias:false},{label:'GNC',cat:'GNC',dias:true},{label:'LIQUIDOS',cat:'LIQUIDO',dias:true},{label:'FULL',cat:'FULL',dias:true}];
+var tabActual = TABS[0];
 var todosLosDatos = [];
-var UMBRAL_DIA_VALIDO = 3; // 3 o mas raspaditas en un dia cuenta como 1 dia valido
 
 function login() {
   var pass = document.getElementById('inp-password').value.trim();
@@ -120,12 +122,26 @@ function login() {
 
 document.getElementById('inp-password').addEventListener('keydown', function(e) { if(e.key==='Enter') login(); });
 
+function dibujarTabs() {
+  var cont = document.getElementById('sectores');
+  if (TABS.length < 2) { cont.style.display = 'none'; return; }
+  cont.innerHTML = '';
+  TABS.forEach(function(t, i) {
+    var b = document.createElement('button');
+    b.className = 'filtro-btn' + (t === tabActual ? ' activo' : '');
+    b.textContent = t.label;
+    b.onclick = function() { tabActual = t; dibujarTabs(); setFiltro(filtroActual); };
+    cont.appendChild(b);
+  });
+}
+dibujarTabs();
+
 function setFiltro(f) {
   filtroActual = f;
   document.querySelectorAll('.filtro-btn').forEach(function(b) { b.classList.remove('activo'); });
   document.getElementById('btn-' + f).classList.add('activo');
   var titulos = {hoy:'Ranking de hoy', semana:'Ranking de la semana', total:'Ranking total de la promocion', dia:'Ranking por dia', rango:'Ranking por rango de fechas'};
-  document.getElementById('ranking-titulo').textContent = titulos[f];
+  document.getElementById('ranking-titulo').textContent = titulos[f] + (tabActual.cat ? ' - ' + tabActual.label : '');
   document.getElementById('fecha-picker').style.display = f === 'dia' ? 'block' : 'none';
   document.getElementById('rango-picker').style.display = f === 'rango' ? 'flex' : 'none';
   renderRanking();
@@ -173,22 +189,22 @@ function renderRanking() {
     return;
   }
 
-  // Agrupamos por vendedor, y dentro de cada vendedor por dia, para poder
-  // calcular cuantos dias tuvo 3 o mas raspaditas (dia valido).
+  // Cada registro del servidor = dia + vendedor + sector, con n = cantidad de raspaditas.
+  // Ranking general: suma todas las raspaditas de cada vendedor.
+  // Ranking por sector: solo las de ese sector, y ademas cuenta DIAS TRABAJADOS
+  // (dias con al menos 1 raspadita en ese sector; si no hizo ninguna, no suma dia).
   var porVendedor = {};
   filtrados.forEach(function(r) {
-    if (!porVendedor[r.vendedor]) porVendedor[r.vendedor] = [];
-    porVendedor[r.vendedor].push(r);
+    if (r.vendedor === 'FRAUDE') return;
+    if (tabActual.cat && r.cat !== tabActual.cat) return;
+    var o = porVendedor[r.vendedor] || (porVendedor[r.vendedor] = { cantidad: 0, dias: {} });
+    o.cantidad += (r.n || 1);
+    o.dias[r.fecha] = true;
   });
 
   var lista = Object.keys(porVendedor).map(function(v) {
-    var registros = porVendedor[v];
-    var porDia = {};
-    registros.forEach(function(r) { porDia[r.fecha] = (porDia[r.fecha] || 0) + 1; });
-    var diasValidos = 0;
-    Object.keys(porDia).forEach(function(d) { if (porDia[d] >= UMBRAL_DIA_VALIDO) diasValidos++; });
-    return { vendedor: v, cantidad: registros.length, dias: diasValidos };
-  }).sort(function(a, b) { return b.cantidad - a.cantidad; });
+    return { vendedor: v, cantidad: porVendedor[v].cantidad, dias: Object.keys(porVendedor[v].dias).length };
+  }).sort(function(a, b) { return b.cantidad - a.cantidad || b.dias - a.dias; });
 
   if (lista.length === 0) {
     document.getElementById('ranking-lista').innerHTML = '<div class="loading">Sin datos para este periodo.</div>';
@@ -206,9 +222,10 @@ function renderRanking() {
     html += '<div class="nombre">'+item.vendedor+'</div>';
     html += '<div class="barra-cont"><div class="barra" style="width:'+pct+'%"></div></div>';
     html += '<div class="cantidad">'+item.cantidad+'</div>';
-    html += '<div class="dias" title="Dias con 3 o mas raspaditas">'+item.dias+'d</div>';
+    if (tabActual.dias) html += '<div class="dias" title="Dias trabajados (con al menos 1 raspadita)">'+item.dias+(item.dias===1?' dia':' dias')+'</div>';
     html += '</div>';
   });
+  document.getElementById('leyenda').textContent = tabActual.dias ? 'Cantidad de raspaditas  |  dias trabajados (dia con al menos 1 raspadita)' : 'Total de raspaditas de todos los sectores';
   document.getElementById('ranking-lista').innerHTML = html;
 }
 
