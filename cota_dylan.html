@@ -82,11 +82,11 @@
 <div class="card">
   <div id="codigo-section" style="display:block;">
     <p class="codigo-label">Ingresa tu codigo</p>
-    <p class="codigo-ayuda">Son 2 letras del producto + el importe del ticket. Ej: ID25000</p>
-    <input type="text" id="codigo-input" maxlength="12" autocapitalize="characters" autocomplete="off" placeholder="ID25000">
+    <p class="codigo-ayuda">Son 2 letras del producto + el importe del ticket. Ej: GN15000</p>
+    <input type="text" id="codigo-input" maxlength="12" autocapitalize="characters" autocomplete="off" placeholder="GN15000">
     <div class="codigo-error" id="codigo-error"></div>
     <button id="codigo-submit" onclick="validarCodigo()">Participar</button>
-    <p class="vehiculo-info" style="margin-top:12px;">Importe minimo: auto o transporte pesado $25.000 &middot; moto $5.000</p>
+    <p class="vehiculo-info" style="margin-top:12px;">Importe minimo: GNC $7.000 &middot; Full $3.000<br>Combustibles liquidos: auto o transporte pesado $25.000 &middot; moto $5.000</p>
   </div>
 
   <div id="vehiculo-section" style="display:none;">
@@ -165,10 +165,10 @@ function obtenerDeviceId() {
 }
 var DEVICE_ID = obtenerDeviceId();
 
-var PREFIJOS = ["IN","ID","NS","DI","D5"];
+var PREFIJOS = ["IN","ID","NS","DI","D5","GN","FU"];
 var LIQUIDOS = ["IN","ID","NS","DI","D5"];
 // Importes minimos (la validacion real la hace el servidor)
-var MINIMO_FIJO = {};
+var MINIMO_FIJO = { GN: 7000, FU: 3000 };
 var MINIMO_LIQUIDO = { moto: 5000, auto: 25000 };
 var VEHICULO_ELEGIDO = null;
 var CODIGO_TEXTO = null;
@@ -185,7 +185,7 @@ function formatoPesos(n) { return '$' + String(n).replace(/\B(?=(\d{3})+(?!\d))/
 function validarCodigo() {
   var valor = document.getElementById('codigo-input').value.trim().toUpperCase().replace(/\s+/g, '');
   var m = /^([A-Z][A-Z0-9])([0-9]+)$/.exec(valor);
-  if (!m) { mostrarErrorCodigo('El codigo debe tener 2 letras seguidas del importe. Ej: ID25000.'); return; }
+  if (!m) { mostrarErrorCodigo('El codigo debe tener 2 letras seguidas del importe. Ej: GN15000.'); return; }
   if (PREFIJOS.indexOf(m[1]) === -1) { mostrarErrorCodigo('Las 2 letras del codigo no son validas. Revisa el ticket o consulta con el vendedor.'); return; }
   if (m[2].length > 7) { mostrarErrorCodigo('El importe del codigo no es valido.'); return; }
   document.getElementById('codigo-error').style.display = 'none';
