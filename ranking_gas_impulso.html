@@ -370,4 +370,30 @@ function descargarImagen() {
 }
 </script>
 </body>
+</html>UNTOS_INF_V2_DESDE) ? ((ni - nid) * PUNTOS_INF_NAFTA_V2 + nid * PUNTOS_INF_DIESEL_V2) : ni * (nov ? (PROMOS_INFINIA_NOV.some(function(q) { return r.fecha >= q[0] && r.fecha <= q[1]; }) ? PUNTOS_INFINIA_PROMO_NOV : PUNTOS_INFINIA_NOV) : (enPromo ? PUNTOS_INFINIA : 1)); p = (n - ni) + pi; }
+    else if (r.cat === 'ELAION') p = n * (nov ? PUNTOS_ELAION_NOV : PUNTOS_ELAION);
+    else if (r.cat === 'APP') { var nno = Math.min(Number(r.nno) || 0, n), nsi = Math.min(Number(r.nsi) || 0, n - nno), pend = n - nno - nsi; p = nov ? (nsi + pend) * PUNTOS_APP_NOV : (nsi + pend) * PUNTOS_APP + nno; }
+    if (p) res[v] = (res[v] || 0) + p;
+  });
+  serviclub.forEach(function(r) { var v = ALIAS[r.vendedor] || r.vendedor; res[v] = (res[v] || 0) + (Number(r.n) || 0) * PUNTOS_SERVICLUB; });
+  return res;
+}
+
+function descargarImagen() {
+  var rangoTexto = (document.getElementById('inp-rango-desde').value || '?') + ' a ' + (document.getElementById('inp-rango-hasta').value || '?');
+  var subtitulos = {hoy:'Hoy - '+new Date().toLocaleDateString('es-AR', {timeZone: 'America/Argentina/Buenos_Aires'}), semana:'Esta semana', total:'Total', dia:document.getElementById('inp-fecha').value || 'Dia seleccionado', rango:rangoTexto};
+  document.getElementById('export-header').style.display = 'block';
+  var nomVis = {equipo:' - Ranking de equipo', playa:' - Sorteo motos (cerrado)', full:' - Full'};
+  document.getElementById('export-subtitulo').textContent = subtitulos[filtroActual] + nomVis[vistaActual];
+  var el = document.getElementById('ranking-exportable');
+  html2canvas(el, {backgroundColor:'#ffffff', scale:2}).then(function(canvas) {
+    document.getElementById('export-header').style.display = 'none';
+    var link = document.createElement('a');
+    link.download = 'ranking_gas_impulso_' + new Date().toLocaleDateString('es-AR', {timeZone: 'America/Argentina/Buenos_Aires'}).replace(/\//g,'-') + '.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  });
+}
+</script>
+</body>
 </html>
